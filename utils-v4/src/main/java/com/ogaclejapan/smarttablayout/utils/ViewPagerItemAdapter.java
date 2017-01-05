@@ -28,12 +28,23 @@ public class ViewPagerItemAdapter extends PagerAdapter {
   private final ViewPagerItems pages;
   private final SparseArrayCompat<WeakReference<View>> holder;
   private final LayoutInflater inflater;
-
+  private final OnViewsStateChangedListener delegate;
+    
+  public interface OnViewsStateChangedListener{
+    public void onAllViewsReady();
+  }
   public ViewPagerItemAdapter(ViewPagerItems pages) {
     this.pages = pages;
     this.holder = new SparseArrayCompat<>(pages.size());
     this.inflater = LayoutInflater.from(pages.getContext());
   }
+    
+public ViewPagerITemAdapter(ViewPagerItems pages, OnViewsStateChangedListener delegate ){
+    this.pages = pages;
+    this.holder = new SparseArrayCompat<>(pages.size());
+    this.inflater = LayoutInflater.from(pages.getContext());
+    this.delegate = delegate;
+}
 
   @Override
   public int getCount() {
@@ -45,6 +56,9 @@ public class ViewPagerItemAdapter extends PagerAdapter {
     View view = getPagerItem(position).initiate(inflater, container);
     container.addView(view);
     holder.put(position, new WeakReference<View>(view));
+      if(position == this.pages.size() - 1) // we reached the last view
+        if(delegate != null)
+            delegate.onAllViewsReady();
     return view;
   }
 
